@@ -16,10 +16,6 @@ import android.webkit.MimeTypeMap;
 import com.example.linhnh.myapplication.BaseApplication;
 
 import java.io.File;
-
-/**
- * Created by HUNGCV on 7/2/2015.
- */
 public class FileUtils {
 
     public static final String TYPE_IMAGE = "image";
