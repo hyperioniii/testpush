@@ -1,10 +1,12 @@
-package com.example.linhnh.myapplication.util;
+package com.example.linhnh.myapplication.CustomView;
 
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import com.example.linhnh.myapplication.util.DebugLog;
 
 /**
  * Created by LinhNguyen on 11/5/2015.

@@ -1,7 +1,9 @@
 package com.example.linhnh.myapplication.fragment;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.DisplayMetrics;
@@ -10,14 +12,18 @@ import android.view.View;
 import com.example.linhnh.myapplication.R;
 import com.example.linhnh.myapplication.adapter.DividerItemDecoration;
 import com.example.linhnh.myapplication.adapter.ListEventAdapter;
+import com.example.linhnh.myapplication.constant.HeaderIconOption;
+import com.example.linhnh.myapplication.eventbus.MainScreenSettingEvent;
 import com.example.linhnh.myapplication.model.CalenderEvent;
-import com.example.linhnh.myapplication.util.CustomsRecycleViewHoriziontal;
+import com.example.linhnh.myapplication.CustomView.CustomsRecycleViewHoriziontal;
 import com.example.linhnh.myapplication.util.DebugLog;
+import com.example.linhnh.myapplication.util.FragmentUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.InjectView;
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by LinhNguyen on 11/6/2015.
@@ -31,6 +37,9 @@ public class FragmentListImage extends BaseFragment {
 
     @InjectView(R.id.swipe_refresh_list_img)
     SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @InjectView(R.id.fab)
+    FloatingActionButton fab;
 
     ListEventAdapter adapter;
 
@@ -47,6 +56,9 @@ public class FragmentListImage extends BaseFragment {
 
     @Override
     protected void initView(View root) {
+        MainScreenSettingEvent mainScreenSettingEvent = new MainScreenSettingEvent("My title ", HeaderIconOption.RIGHT_NONE, HeaderIconOption.LEFT_SETTING);
+        EventBus.getDefault().post(mainScreenSettingEvent);
+
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), null));
         mSwipeRefreshLayout.setRefreshing(false);
@@ -62,6 +74,18 @@ public class FragmentListImage extends BaseFragment {
                 new Handler().postDelayed(r, 2000);
             }
         });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                FragmentUtil.pushFragment(getActivity(), FragmentEditImage.intantce(), null);
+            }
+        });
+
+        fab.setRippleColor(getResources().getColor(R.color.colorPrimary));
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
     }
 
     @Override

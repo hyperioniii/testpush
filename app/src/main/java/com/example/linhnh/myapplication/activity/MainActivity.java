@@ -1,39 +1,29 @@
 package com.example.linhnh.myapplication.activity;
 
 import android.content.res.ColorStateList;
-import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 
+import com.example.linhnh.myapplication.CustomView.CustomHeaderToolBar;
 import com.example.linhnh.myapplication.R;
-import com.example.linhnh.myapplication.adapter.DividerItemDecoration;
-import com.example.linhnh.myapplication.adapter.ListEventAdapter;
+import com.example.linhnh.myapplication.callback.OnHeaderIconClickListener;
 import com.example.linhnh.myapplication.eventbus.MainScreenSettingEvent;
 import com.example.linhnh.myapplication.fragment.FragmentEditImage;
 import com.example.linhnh.myapplication.fragment.FragmentListImage;
-import com.example.linhnh.myapplication.model.CalenderEvent;
-import com.example.linhnh.myapplication.util.CustomsRecycleViewHoriziontal;
 import com.example.linhnh.myapplication.util.DebugLog;
 import com.example.linhnh.myapplication.util.FragmentUtil;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.linhnh.myapplication.util.UiUtil;
 
 import butterknife.InjectView;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements OnHeaderIconClickListener ,FragmentManager.OnBackStackChangedListener{
 
+    @InjectView(R.id.toolbar)
+    CustomHeaderToolBar toolBar;
 
+    boolean isNextBackPopAllStack = false;
 
     @Override
     public int setContentViewId() {
@@ -42,33 +32,37 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(null);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                popEntireFragmentBackStack();
-                FragmentUtil.replaceFragment(MainActivity.this, FragmentEditImage.intantce(),null);
-            }
-        });
-
-        fab.setRippleColor(getResources().getColor(R.color.colorPrimary));
-        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+        setSupportActionBar(toolBar);
+        toolBar.setOnHeaderIconClickListener(this);
     }
 
     @Override
     public void initData() {
-            FragmentUtil.showFragment(MainActivity.this, FragmentListImage.intantce(), false, null, "", false);
+            FragmentUtil.replaceFragment(MainActivity.this, FragmentListImage.intantce(), null);
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(MainScreenSettingEvent event) {
-
+        if (event.title != null) {
+            DebugLog.d("=.="+event.title);
+            toolBar.setTvTitle(event.title);
+        }
+        if (event.isHeaderVisibility()) {
+            UiUtil.showView(toolBar);
+            if (event.headerIconOptionList != null && event.headerIconOptionList.length > 0) {
+                int size = event.headerIconOptionList.length;
+                for (int i = 0; i < size; i++) {
+                    toolBar.handleIconOption(event.headerIconOptionList[i]);
+                }
+            }
+        } else {
+            UiUtil.hideView(toolBar, true);
+        }
+        if (event.isBottomTabVisibility()) {
+//            UiUtil.showView(commonTab);
+        } else {
+//            UiUtil.hideView(commonTab, true);
+        }
     }
 
     private void popEntireFragmentBackStack() {
@@ -80,4 +74,52 @@ public class MainActivity extends BaseActivity {
 //        showHideLeftIcon(null);
     }
 
+    @Override
+    public void onBackPressed() {
+            onHeaderBack();
+    }
+
+    @Override
+    public void onHeaderBack() {
+        final FragmentManager fm = getSupportFragmentManager();
+        final int backStackCount = fm.getBackStackEntryCount();
+        DebugLog.i("backStackCount: " + backStackCount);
+        if (backStackCount > 0) {
+            DebugLog.e("toolbarBackClick" + isNextBackPopAllStack);
+            if (isNextBackPopAllStack) {
+                popEntireFragmentBackStack();
+                isNextBackPopAllStack = false;
+            } else {
+                getSupportFragmentManager().popBackStack();
+            }
+        } else {
+            finish();
+        }
+        DebugLog.i("imgLeftBack:");
+    }
+
+    @Override
+    public void onHeaderClose() {
+        DebugLog.i("onHeaderClose:");
+    }
+
+    @Override
+    public void onHeaderSetting() {
+        DebugLog.i("onHeaderSetting:");
+    }
+
+    @Override
+    public void onHeaderEdit() {
+        DebugLog.i("onHeaderEdit:");
+    }
+
+    @Override
+    public void onHeaderDelete() {
+        DebugLog.i("onHeaderDelete:");
+    }
+
+    @Override
+    public void onBackStackChanged() {
+
+    }
 }
