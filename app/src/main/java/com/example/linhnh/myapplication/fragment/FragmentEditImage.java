@@ -1,13 +1,33 @@
 package com.example.linhnh.myapplication.fragment;
 
+import android.graphics.AvoidXfermode;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.linhnh.myapplication.R;
+import com.example.linhnh.myapplication.callback.OnHeaderIconClickListener;
 import com.example.linhnh.myapplication.constant.HeaderIconOption;
 import com.example.linhnh.myapplication.eventbus.MainScreenSettingEvent;
+import com.example.linhnh.myapplication.util.DebugLog;
+import com.larswerkman.lobsterpicker.ColorAdapter;
+import com.larswerkman.lobsterpicker.ColorDecorator;
+import com.larswerkman.lobsterpicker.LobsterPicker;
+import com.larswerkman.lobsterpicker.OnColorListener;
 import com.larswerkman.lobsterpicker.adapters.BitmapColorAdapter;
 import com.larswerkman.lobsterpicker.sliders.LobsterOpacitySlider;
 import com.larswerkman.lobsterpicker.sliders.LobsterShadeSlider;
@@ -26,7 +46,7 @@ import de.greenrobot.event.EventBus;
  * https://github.com/huydx/vlcamera
  * https://github.com/AndrewShidel/Green-Screen-Photography
  */
-public class FragmentEditImage extends BaseFragment {
+public class FragmentEditImage extends BaseFragment implements OnHeaderIconClickListener {
 
     @InjectView(R.id.opacityslider)
     LobsterOpacitySlider opacitySlider;
@@ -49,7 +69,8 @@ public class FragmentEditImage extends BaseFragment {
 
     @Override
     protected void initView(View root) {
-        MainScreenSettingEvent mainScreenSettingEvent = new MainScreenSettingEvent("My title ", HeaderIconOption.RIGHT_NONE, HeaderIconOption.LEFT_BACK);
+
+        MainScreenSettingEvent mainScreenSettingEvent = new MainScreenSettingEvent("My title ", HeaderIconOption.RIGHT_CLOSE, HeaderIconOption.LEFT_BACK);
         EventBus.getDefault().post(mainScreenSettingEvent);
 
         shadeSlider.addDecorator(opacitySlider);
@@ -66,19 +87,64 @@ public class FragmentEditImage extends BaseFragment {
         setColor();
     }
 
-    public void setColor(){
-//        editImg.setColorFilter(opacitySlider.getColor());
-//        editImg.setColorFilter(Color.RED, PorterDuff.Mode.LIGHTEN);
+    Canvas canvas;
+    Paint paint = new Paint();
+    Drawable myIcon;
+    Bitmap src, bm1;
+
+    public void setColor() {
+
+        Glide.with(getActivity()).load(R.drawable.images).into(editImg);
+        opacitySlider.setOpacity(0);
+        myIcon = getResources().getDrawable(R.drawable.images);
+        src = ((BitmapDrawable) myIcon).getBitmap();
+        bm1 = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(bm1);
 
 
-//        editImg.setImageBitmap(bm2);
-//        Glide.with(getActivity()).load(R.drawable.images).into(editImg);
+        shadeSlider.addOnColorListener(new OnColorListener() {
+            @Override
+            public void onColorChanged(int color) {
+                DebugLog.d("====color=====" + color);
+
+                if (color != 0) {
+                    paint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.OVERLAY));
+                    canvas.drawBitmap(src, 0, 0, paint);
+                    editImg.setImageBitmap(bm1);
+                }
+            }
+
+            @Override
+            public void onColorSelected(int color) {
+
+            }
+        });
 
 
-//        int mColor = (int) Math.floor(Math.random() * mColors.length);
-//        bitmapOrg.setColorFilter(mColors[mColor], PorterDuff.Mode.MULTIPLY);
-//        imageView.setImageDrawable(bitmapOrg);
-//        imageView.invalidate();
     }
 
+    @Override
+    public void onHeaderBack() {
+
+    }
+
+    @Override
+    public void onHeaderClose() {
+
+    }
+
+    @Override
+    public void onHeaderSetting() {
+
+    }
+
+    @Override
+    public void onHeaderEdit() {
+
+    }
+
+    @Override
+    public void onHeaderDelete() {
+
+    }
 }
